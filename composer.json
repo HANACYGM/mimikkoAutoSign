@@ -1,0 +1,17 @@
+{
+    "name": "cygm/mimikkoSign",
+    "description": "none",
+    "license": "80",
+    "authors": [
+        {
+            "name": "cygm",
+            "email": "hana@9999.moe"
+        }
+    ],
+    "require": {
+        "curl/curl": "^1.8"
+    },
+    "autoload": {
+        "psr-4": {"src\\": "src/"}
+    }
+}
