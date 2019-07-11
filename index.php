@@ -13,7 +13,7 @@
  * Ö®»¨(¡«£þ¨Œ£þ)¡«
  * White Lily(¡ã?¡ã)©g
  * 
- * @author: CYGM <hana@9999.moe>
+ * @author: CYGM <mailcygm@gmail.com && hana@9999.moe>
  * @version: 1.0.0
  */
 namespace mimikko;
