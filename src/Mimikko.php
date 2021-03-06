@@ -5,7 +5,8 @@ use Curl\Curl;
 
 class Mimikko {
     private $host = "https://api1.mimikko.cn";
-    private $userAgent = "okhttp/3.8.0";
+    private $userAgent = "okhttp/3.12.1";
+    private $version = "3.1.6";
     private $appId = "wjB7LOP2sYkaMGLC";
     private $curlInstance;
     private $user;
@@ -30,6 +31,7 @@ class Mimikko {
         $this->curlInstance->setHeader("Content-Type", "application/json");
         $this->curlInstance->setHeader("Accept-Language", "zh-cn");
         $this->curlInstance->setHeader("AppID", $this->appId);
+        $this->curlInstance->setHeader("Version", $this->version);
         
     }
     /**
