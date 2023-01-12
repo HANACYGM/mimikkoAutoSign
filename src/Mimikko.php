@@ -124,7 +124,7 @@ class Mimikko {
 
     private function getError(){
         if($this->curlInstance->error_code !== 0 || !empty($this->curlInstance->error_message)){
-            throw new Exception(__FUNCTION__ . "异常" . json_encode([
+            throw new \Exception(__FUNCTION__ . "异常" . json_encode([
                 "response"              => $this->response,
                 "request_headers"       => $this->curlInstance->request_headers,
                 "error_code" => $this->curlInstance->error_code,
