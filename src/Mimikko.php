@@ -83,6 +83,15 @@ class Mimikko {
         foreach($response['body']['Items'] as $servant){
             if($servant['IsDefault']){
                 $this->servantId = $servant['ServantId'];
+                if ($servant["Favorability"] > $servant["MaxFavorability"] && count($response['body']['Items']) > 1) {
+                    $newServantList = array_filter($response["body"]["Items"], function ($item) {
+                        return !$item["IsDefault"] && $item["Favorability"] <= $item["MaxFavorability"];
+                    });
+                    if (count($newServantList) >= 1) {
+                        $popServantInfo = array_pop($newServantList);
+                        $this->setDefaultServant($popServantInfo["code"], $popServantInfo["ServantId"]);
+                    }
+                }
                 break;
             }
         }
@@ -90,6 +99,22 @@ class Mimikko {
         return $this;
     }
     
+    /**
+     * 设置默认助手
+     * @return $this
+     */
+    public function setDefaultServant($servantCode, $servantId){
+        $url = $this->host . "/client/Servant/SetDefaultServant?code=" . $servantCode;
+        $this->curlInstance->get($url);
+        
+        $this->getError();
+        
+        $this->response[__FUNCTION__] = json_decode($this->curlInstance->response, true);
+        $this->servantId = $servantId;
+        
+        return $this;
+    }
+
     /**
      * 兑换能量值
      * @return $this
