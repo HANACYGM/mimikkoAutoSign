@@ -5,8 +5,9 @@ use Curl\Curl;
 
 class Mimikko {
     private $host = "https://api1.mimikko.cn";
-    private $userAgent = "okhttp/3.8.0";
-    private $appId = "R5sxL6wSY1o6SBMi";
+    private $userAgent = "okhttp/3.12.1";
+    private $version = "3.1.6";
+    private $appId = "wjB7LOP2sYkaMGLC";
     private $curlInstance;
     private $user;
     private $password;
@@ -29,7 +30,8 @@ class Mimikko {
         $this->curlInstance->setHeader("User-Agent", $this->userAgent);
         $this->curlInstance->setHeader("Content-Type", "application/json");
         $this->curlInstance->setHeader("Accept-Language", "zh-cn");
-        $this->curlInstance->setHeader("AppID", "R5sxL6wSY1o6SBMi");
+        $this->curlInstance->setHeader("AppID", $this->appId);
+        $this->curlInstance->setHeader("Version", $this->version);
         
     }
     /**
@@ -66,22 +68,53 @@ class Mimikko {
     }
     
     /**
-     * 获取用户唯一ID
+     * 获取助手ID
      * @return $this
      */
     public function getServantId(){
         $this->getUserOwnInformation();
-        $url = $this->host . "/client/love/GetUserServantInstance";
+        $url = $this->host . "/client/Servant/GetServantList?startIndex=0&count=9999";
         $this->curlInstance->get($url);
         
         $this->getError();
         
         $this->response[__FUNCTION__] = $response = json_decode($this->curlInstance->response, true);
-        $this->servantId = $response['body']['ServantId'] ?? "";
+        $this->servantId = "";
+        foreach($response['body']['Items'] as $servant){
+            if($servant['IsDefault']){
+                $this->servantId = $servant['ServantId'];
+                if ($servant["Favorability"] > $servant["MaxFavorability"] && count($response['body']['Items']) > 1) {
+                    $newServantList = array_filter($response["body"]["Items"], function ($item) {
+                        return !$item["IsDefault"] && $item["Favorability"] <= $item["MaxFavorability"];
+                    });
+                    if (count($newServantList) >= 1) {
+                        $popServantInfo = array_pop($newServantList);
+                        $this->setDefaultServant($popServantInfo["code"], $popServantInfo["ServantId"]);
+                    }
+                }
+                break;
+            }
+        }
         
         return $this;
     }
     
+    /**
+     * 设置默认助手
+     * @return $this
+     */
+    public function setDefaultServant($servantCode, $servantId){
+        $url = $this->host . "/client/Servant/SetDefaultServant?code=" . $servantCode;
+        $this->curlInstance->get($url);
+        
+        $this->getError();
+        
+        $this->response[__FUNCTION__] = json_decode($this->curlInstance->response, true);
+        $this->servantId = $servantId;
+        
+        return $this;
+    }
+
     /**
      * 兑换能量值
      * @return $this
@@ -116,7 +149,7 @@ class Mimikko {
 
     private function getError(){
         if($this->curlInstance->error_code !== 0 || !empty($this->curlInstance->error_message)){
-            throw new Exception(__FUNCTION__ . "异常" . json_encode([
+            throw new \Exception(__FUNCTION__ . "异常" . json_encode([
                 "response"              => $this->response,
                 "request_headers"       => $this->curlInstance->request_headers,
                 "error_code" => $this->curlInstance->error_code,
